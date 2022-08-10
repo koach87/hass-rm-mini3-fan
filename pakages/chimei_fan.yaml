@@ -1,0 +1,89 @@
+# fan:
+#   - platform: template
+#     fans:
+#       bedroom_fan:
+
+#         friendly_name: "Bedroom fan"
+#         value_template: "{{ states('input_boolean.state') }}"
+#         speed_count: 7
+#         percentage_template: "{{ states('input_number.percentage') }}"
+
+#         turn_on:
+#           - service: script.fan_power
+
+#           - service: var.set
+#             data:
+#               entity_id: var.fan_now_state
+#               value: True
+
+#         turn_off:
+#           - service: script.fan_power
+
+#           - service: var.set
+#             data:
+#               entity_id: var.fan_now_state
+#               value: False
+
+#         set_percentage:
+#           - service: script.fans_set_speed
+#             data:
+#               percentage: "{{ percentage }}"
+
+#           - service: var.set
+#             data:
+#               entity_id: var.fan_now_speed
+#               value: "{{ states('input_number.percentage') | int }}"
+
+# chemei remote ctrl
+
+input_text:
+  status_chimei_fan_speed:
+    name: 'Chimei DF-14D601 Speed'
+    initial: 1/7 * 100 | int # //!<<< Adjust this value if your actual fan speed is not zero. Formula: round( current_speed / speed_count * 100 );
+
+fan:
+  - platform: template
+    fans:
+      chimei_fan:
+        friendly_name: "Chimei DC Fan"
+        speed_count: 7
+        value_template: "{{ states('var.fan_now_state') }}"
+        percentage_template: "{{ states('input_number.percentage') }}"
+
+        turn_on:
+          # - service: input_text.set_value
+          #   data_template:
+          #     entity_id: input_text.status_chimei_fan_speed
+          #     value: '{{4/7 * 100 | int}}'
+          - service: script.fan_power
+          - service: var.set
+            data:
+              entity_id: var.fan_now_state
+              value: True
+        turn_off:
+          # - service: input_text.set_value
+          #   data_template:
+          #     entity_id: input_text.status_chimei_fan_speed
+          #     value: '{{4/7 * 100 | int}}'
+          - service: script.fan_power
+          - service: var.set
+            data:
+              entity_id: var.fan_now_state
+              value: False
+
+        set_percentage:
+          - service: python_script.remote_fan_speed_control
+            data_template:
+              fan_now_state: "{{ states('var.fan_now_state') }}"
+              percentage: "{{ percentage }}"
+              entity_id: fan.chimei_fan
+              speed_entity_id: input_text.status_chimei_fan_speed
+              speed_count: 7
+              service: remote.send_command
+              service_data_increase:
+                entity_id: remote.rm_mini3_remote
+                command: b64:JgDgACcNKA4OJywLLQoPJxAmECURJRAmLQoPAAEBLAwpDg4mLQsqDg4nECURJRElECYsDA4AAQAtCywKESUtCi0LECURJRAmECYQJS0LEP8sCywLECYsCy0KESUQJhAlESUQJi0KEP8tCi0LECUtCywLECYQJRElECYQJS0LEP8tCi0KESUtCi0LECURJRAmECURJS0KEf4tCywLECYsCy0KESUQJhAlESUQJi0LD/8tCywLECUtCywLECYQJRElECYQJS0LDwABACwMLAwNJy0KLQsPJhElECYQJRElLQoPAA0FAAAAAAAAAAA=
+              service_data_decrease:
+                entity_id: remote.rm_mini3_remote
+                command: b64:JgCuACgLLAwOJywMLAssCw8mESUQJiwLLQsP/y0LLAsQJS0LLQssCxAlECYQJS0LLAwP/y0LLAsQJS0LLAwsChElECYQJS0LLAsQ/y0LLAsQJS0KLQssDA8mECURJS0LLAsPAAEALAwsDA0nLQotDSgODicQJRElLQorDQ8AAQAsDSgODyYtCisNLAsPJhElECYtCioOD/8rDSwLDycsCy0KLQsQJRElECYsCy0KEAANBQAAAAAAAAAAAAA=
+

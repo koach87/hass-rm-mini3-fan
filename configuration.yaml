@@ -1,0 +1,29 @@
+# # Loads default set of integrations. Do not remove.
+# default_config:
+
+# use python script
+python_script:
+
+# # Text to speech
+# tts:
+#   - platform: google_translate
+
+# automation: !include automations.yaml
+# script: !include scripts.yaml
+# scene: !include scenes.yaml
+# # python: !include fan.yaml
+
+# var:
+#   fan_now_speed:
+#     friendly_name: 'fan_now_speed'
+#     initial_value: -1
+#     icon: mdi:fan
+#   fan_now_state:
+#     friendly_name: 'fan_now_state'
+#     initial_value: False
+#     icon: mdi:fan
+
+#  packages
+homeassistant:
+  # customize: !include chimei_fan.yaml
+  packages: !include_dir_named packages
